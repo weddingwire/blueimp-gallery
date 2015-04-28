@@ -426,6 +426,7 @@
 
         resetSlides: function () {
             this.slidesContainer.empty();
+            this.unloadAllSlides();
             this.slides = [];
         },
 
@@ -814,6 +815,8 @@
             case 27: // Esc
                 if (this.options.closeOnEscape) {
                     this.close();
+                    // prevent Esc from closing other things
+                    event.stopImmediatePropagation(); 
                 }
                 break;
             case 32: // Space
@@ -840,7 +843,7 @@
         handleClick: function (event) {
             var options = this.options,
                 target = event.target || event.srcElement,
-                parent = target.parentNode,
+                parent = (target.tagName === 'A') ? target.parentNode :  $(target).closest('.slides'),
                 isTarget = function (className) {
                     return $(target).hasClass(className) ||
                         $(parent).hasClass(className);
@@ -865,7 +868,7 @@
                 // Click on "play-pause" control
                 this.preventDefault(event);
                 this.toggleSlideshow();
-            } else if (parent === this.slidesContainer[0]) {
+            } else if (parent[0] === this.slidesContainer[0]) {
                 // Click on slide background
                 this.preventDefault(event);
                 if (options.closeOnSlideClick) {
@@ -1045,15 +1048,13 @@
 
         unloadElements: function (index) {
             var i,
-                slide,
                 diff;
             for (i in this.elements) {
                 if (this.elements.hasOwnProperty(i)) {
                     diff = Math.abs(index - i);
                     if (diff > this.options.preloadRange &&
                             diff + this.options.preloadRange < this.num) {
-                        slide = this.slides[i];
-                        slide.removeChild(slide.firstChild);
+                        this.unloadSlide(i);
                         delete this.elements[i];
                     }
                 }
@@ -1113,6 +1114,24 @@
             if (!this.support.transform) {
                 this.slidesContainer[0].style.left =
                     (this.index * -this.slideWidth) + 'px';
+            }
+        },
+
+        unloadSlide: function (index) {
+            var slide,
+                firstChild;
+            slide = this.slides[index];
+            firstChild = slide.firstChild;
+            if (firstChild !== null) {
+                slide.removeChild(firstChild);
+            }
+        },
+
+        unloadAllSlides: function () {
+            var i,
+                len;
+            for (i = 0, len = this.slides.length; i < len; i++) {
+                this.unloadSlide(i);
             }
         },
 

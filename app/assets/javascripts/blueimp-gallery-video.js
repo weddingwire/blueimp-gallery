@@ -56,8 +56,8 @@
         videoFactory: function (obj, callback, videoInterface) {
             var that = this,
                 options = this.options,
-                videoContainerNode = this.elementPrototype.cloneNode(false),
-                videoContainer = $(videoContainerNode),
+                videoContainerNode = document.createElement('a'),
+                videoContainer = null,
                 errorArgs = [{
                     type: 'error',
                     target: videoContainerNode
@@ -76,7 +76,6 @@
                 playMediaControl,
                 isLoading,
                 hasControls;
-            videoContainer.addClass(options.videoContentClass);
             if (title) {
                 videoContainerNode.title = title;
             }
@@ -97,12 +96,18 @@
             }
             if (posterUrl) {
                 video.poster = posterUrl;
+                videoContainerNode.href = posterUrl;
                 posterImage = this.imagePrototype.cloneNode(false);
                 $(posterImage).addClass(options.toggleClass);
                 posterImage.src = posterUrl;
                 posterImage.draggable = false;
                 videoContainerNode.appendChild(posterImage);
+                videoContainerNode = this.imageFactory(videoContainerNode, callback);
             }
+
+            videoContainer = $(videoContainerNode);
+            videoContainer.addClass(options.videoContentClass);
+
             playMediaControl = document.createElement('a');
             playMediaControl.setAttribute('target', '_blank');
             if (!videoInterface) {

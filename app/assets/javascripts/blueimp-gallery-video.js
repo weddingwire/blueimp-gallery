@@ -76,7 +76,8 @@
                 playMediaControl,
                 isLoading,
                 hasControls,
-                imageFactoryObj;
+                imageFactoryObj,
+                videoImage;
             if (title) {
                 videoContainerNode.title = title;
             }
@@ -104,7 +105,12 @@
                 imageFactoryObj = document.createElement('a');
                 imageFactoryObj.href = posterUrl;
                 imageFactoryObj.appendChild(posterImage);
-                videoContainerNode = this.imageFactory(imageFactoryObj, callback);
+                videoImage = this.imageFactory(imageFactoryObj, callback);
+                if (videoImage.nodeName == 'IMG') {
+                  videoContainerNode.appendChild(videoImage);
+                } else if (videoImage.nodeName == 'DIV') {
+                  videoContainerNode = videoImage;
+                }
             }
 
             videoContainer = $(videoContainerNode);

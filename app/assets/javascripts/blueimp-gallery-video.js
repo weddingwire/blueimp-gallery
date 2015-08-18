@@ -57,7 +57,7 @@
             var that = this,
                 options = this.options,
                 videoContainerNode = this.elementPrototype.cloneNode(false),
-                videoContainer = $(videoContainerNode),
+                videoContainer = null,
                 errorArgs = [{
                     type: 'error',
                     target: videoContainerNode
@@ -75,8 +75,9 @@
                 source,
                 playMediaControl,
                 isLoading,
-                hasControls;
-            videoContainer.addClass(options.videoContentClass);
+                hasControls,
+                imageFactoryObj,
+                videoImage;
             if (title) {
                 videoContainerNode.title = title;
             }
@@ -101,8 +102,20 @@
                 $(posterImage).addClass(options.toggleClass);
                 posterImage.src = posterUrl;
                 posterImage.draggable = false;
-                videoContainerNode.appendChild(posterImage);
+                imageFactoryObj = document.createElement('a');
+                imageFactoryObj.href = posterUrl;
+                imageFactoryObj.appendChild(posterImage);
+                videoImage = this.imageFactory(imageFactoryObj, callback);
+                if (videoImage.nodeName == 'IMG') {
+                  videoContainerNode.appendChild(videoImage);
+                } else if (videoImage.nodeName == 'DIV') {
+                  videoContainerNode = videoImage;
+                }
             }
+
+            videoContainer = $(videoContainerNode);
+            videoContainer.addClass(options.videoContentClass);
+
             playMediaControl = document.createElement('a');
             playMediaControl.setAttribute('target', '_blank');
             if (!videoInterface) {
